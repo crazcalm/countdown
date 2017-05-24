@@ -10,19 +10,15 @@ import (
 	"log"
 )
 
-/*
-diff (Duration) seemes to be what I want, but I
-will have to format the output...
-*/
 
 func Days(hours float64) (days float64) {
 	days = math.Floor(hours / 24)
 	return days
 }
 
-func HoursMod24(allHours float64) (hours float64) {
-	hours = math.Floor(math.Mod(allHours, 24))
-	return hours
+func TimeModX(allHours, mod float64) (result float64) {
+	result = math.Floor(math.Mod(allHours, mod))
+	return
 }
 
 func Clear(){
@@ -43,6 +39,14 @@ func ValidDay(lowerBound, upperBound, day int) bool {
 	return lowerBound <= day && day <= upperBound
 }
 
+func ValidDate(futureDate time.Time) (err error) {
+	now := time.Now()
+	if !now.Before(futureDate){
+		err = fmt.Errorf("Please choose a date in the future.")
+	}
+	return
+}
+
 func ValidateInput(year, month, day, currentYear, lowerDayBound, upperDayBound int) (err error) {
 	if !ValidYear(currentYear, year){
 		err = fmt.Errorf("year: %d is not in the future", year)
@@ -61,6 +65,13 @@ func ValidateInput(year, month, day, currentYear, lowerDayBound, upperDayBound i
 	return
 }
 
+func FirstAndLastDayOfTheMonth(year, month int, location *time.Location)(first, last int){
+	date := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, location)
+	first = date.Day()
+	last =date.AddDate(0, 1, -1).Day()
+	return
+}
+
 var year = flag.Int("year", 0, "Year")
 var month = flag.Int("month", 0, "Month")
 var day = flag.Int("day", 0, "Day")
@@ -68,21 +79,34 @@ var day = flag.Int("day", 0, "Day")
 
 func main(){
 	flag.Parse()
-
 	loc, err := time.LoadLocation("Local")
-	if err!= nil {
+	if err != nil {
 		log.Fatal("Error with the location")
 	}
-	future := time.Date(2018, 1, 19, 0, 0, 0, 0, loc)
+
+	now := time.Now()
+	currentYear, _, _ := now.Date()
+	dayLowerBound, dayUpperBound := FirstAndLastDayOfTheMonth(*year, *month, loc)
+
+	err = ValidateInput(*year, *month, *day, currentYear, dayLowerBound, dayUpperBound)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	future := time.Date(*year, time.Month(*month), *day, 0, 0, 0, 0, loc)
+
+	err = ValidDate(future)
+	
 	var diff time.Duration
 
-	for i:= 0; i<1000000; i++ {
+	for {
 
 		Clear()
 		fmt.Printf("%d-%d-%d\n", *year, *month, *day)
 		diff = time.Until(future)
 
-		fmt.Printf("days: %f\nhours: %f\nminutes: %f\nseconds: %f\n\n\n", Days(diff.Hours()), HoursMod24(diff.Hours()), diff.Minutes(), diff.Seconds())
+		fmt.Printf("days: %.0f\nhours: %.0f\nminutes: %.0f\nseconds: %.0f\n\n\n", Days(diff.Hours()), TimeModX(diff.Hours(), 24), TimeModX(diff.Minutes(), 60), TimeModX(diff.Seconds(), 60))
+		fmt.Println(diff)
 		time.Sleep(2 * time.Second)
 	}
 }
