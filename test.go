@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"flag"
 	"log"
+	"strings"
 )
 
 
@@ -102,7 +103,7 @@ var day = flag.Int("day", 0, "Day")
 var hours = flag.Int("hours", 0, "Hours")
 var minutes = flag.Int("minutes", 0, "Minutes")
 
-var seconds = flag.Int("seconds", 1, "Refresh time in seconds")
+var refreshSeconds = flag.Int("refresh", 1, "Refresh time in seconds")
 var msg = flag.String("msg", "The magic day is almost here!", "The message that is displayed with the countdown")
 
 func main(){
@@ -133,12 +134,14 @@ func main(){
 	for {
 
 		Clear()
-		fmt.Printf("%d-%d-%d: %s\n\n", *year, *month, *day, *msg)
 		diff = time.Until(future)
+		if strings.Contains(diff.String(), "-") {
+			fmt.Printf("The countdown for '%s' is over!\n", *msg)
+			break
+		}
+		fmt.Printf("%d-%d-%d: %s\n\n", *year, *month, *day, *msg)
 
 		fmt.Printf("%.0fd %.0fh %.0fm %.0fs\n", Days(diff.Hours()), TimeModX(diff.Hours(), 24), TimeModX(diff.Minutes(), 60), TimeModX(diff.Seconds(), 60))
-		time.Sleep(time.Duration(*seconds) * time.Second)
-		fmt.Println(*seconds)
-		fmt.Println(time.Duration(1000 * *seconds))
+		time.Sleep(time.Duration(*refreshSeconds) * time.Second)
 	}
 }
