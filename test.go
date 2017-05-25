@@ -12,9 +12,10 @@ import (
 
 
 func Days(hours float64) (days float64) {
-	days = math.Floor(hours / 24)
-	return days
+       days = math.Floor(hours / 24)
+       return days
 }
+
 
 func TimeModX(allHours, mod float64) (result float64) {
 	result = math.Floor(math.Mod(allHours, mod))
@@ -39,6 +40,14 @@ func ValidDay(lowerBound, upperBound, day int) bool {
 	return lowerBound <= day && day <= upperBound
 }
 
+func ValidHours(hours int)(bool){
+	return 0 <= hours && hours <= 23
+}
+
+func ValidMinutes(minutes int)(bool){
+	return 0 <= minutes && minutes <= 59
+}
+
 func ValidDate(futureDate time.Time) (err error) {
 	now := time.Now()
 	if !now.Before(futureDate){
@@ -47,19 +56,34 @@ func ValidDate(futureDate time.Time) (err error) {
 	return
 }
 
-func ValidateInput(year, month, day, currentYear, lowerDayBound, upperDayBound int) (err error) {
+func ValidateInput(year, month, day, hours, minutes, currentYear, lowerDayBound, upperDayBound int) (err error) {
+	if year == 0 && month == 0 && day == 0 {
+		err = fmt.Errorf("Please pass a date to be use for the countdown")
+		return
+	}
+
 	if !ValidYear(currentYear, year){
-		err = fmt.Errorf("year: %d is not in the future", year)
+		err = fmt.Errorf("year: %d is not in the future.", year)
 		return
 	}
 
 	if !ValidMonth(month){
-		err = fmt.Errorf("%d is not a valid month. Try using the numbers 1 - 12", month)
+		err = fmt.Errorf("%d is not a valid month. Try using the numbers 1 - 12.", month)
 		return
 	}
 
 	if !ValidDay(lowerDayBound, upperDayBound, day){
-		err = fmt.Errorf("%d is not a valid day for the selected month", day)
+		err = fmt.Errorf("%d is not a valid day for the selected month.", day)
+		return
+	}
+
+	if !ValidHours(hours){
+		err = fmt.Errorf("%d is not a valid hour. Select an hour between 0 and 23.", hours)
+		return
+	}
+
+	if !ValidMinutes(minutes){
+		err = fmt.Errorf("%d is not a valid minute. Select an minute between 0 and 59.", minutes)
 		return
 	}
 	return
@@ -75,7 +99,11 @@ func FirstAndLastDayOfTheMonth(year, month int, location *time.Location)(first, 
 var year = flag.Int("year", 0, "Year")
 var month = flag.Int("month", 0, "Month")
 var day = flag.Int("day", 0, "Day")
+var hours = flag.Int("hours", 0, "Hours")
+var minutes = flag.Int("minutes", 0, "Minutes")
 
+var seconds = flag.Int("seconds", 1, "Refresh time in seconds")
+var msg = flag.String("msg", "The magic day is almost here!", "The message that is displayed with the countdown")
 
 func main(){
 	flag.Parse()
@@ -88,25 +116,29 @@ func main(){
 	currentYear, _, _ := now.Date()
 	dayLowerBound, dayUpperBound := FirstAndLastDayOfTheMonth(*year, *month, loc)
 
-	err = ValidateInput(*year, *month, *day, currentYear, dayLowerBound, dayUpperBound)
+	err = ValidateInput(*year, *month, *day, *hours, *minutes, currentYear, dayLowerBound, dayUpperBound)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	future := time.Date(*year, time.Month(*month), *day, 0, 0, 0, 0, loc)
+	future := time.Date(*year, time.Month(*month), *day, *hours, *minutes, 0, 0, loc)
 
 	err = ValidDate(future)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	
 	var diff time.Duration
 
 	for {
 
 		Clear()
-		fmt.Printf("%d-%d-%d\n", *year, *month, *day)
+		fmt.Printf("%d-%d-%d: %s\n\n", *year, *month, *day, *msg)
 		diff = time.Until(future)
 
-		fmt.Printf("days: %.0f\nhours: %.0f\nminutes: %.0f\nseconds: %.0f\n\n\n", Days(diff.Hours()), TimeModX(diff.Hours(), 24), TimeModX(diff.Minutes(), 60), TimeModX(diff.Seconds(), 60))
-		fmt.Println(diff)
-		time.Sleep(2 * time.Second)
+		fmt.Printf("%.0fd %.0fh %.0fm %.0fs\n", Days(diff.Hours()), TimeModX(diff.Hours(), 24), TimeModX(diff.Minutes(), 60), TimeModX(diff.Seconds(), 60))
+		time.Sleep(time.Duration(*seconds) * time.Second)
+		fmt.Println(*seconds)
+		fmt.Println(time.Duration(1000 * *seconds))
 	}
 }
