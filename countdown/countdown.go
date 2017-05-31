@@ -1,4 +1,4 @@
-package main
+package countdown
 
 import (
 	"flag"
@@ -18,8 +18,8 @@ func Days(hours float64) (days float64) {
 }
 
 // TimeModX is used to convert time into its appropriate range
-func TimeModX(allHours, mod float64) (result float64) {
-	result = math.Floor(math.Mod(allHours, mod))
+func TimeModX(time, mod float64) (result float64) {
+	result = math.Floor(math.Mod(time, mod))
 	return
 }
 
@@ -37,7 +37,7 @@ func ValidYear(currentYear, futureYear int) bool {
 
 // ValidMonth validates a month
 func ValidMonth(month int) bool {
-	return 0 <= month && month <= 12
+	return 1 <= month && month <= 12
 }
 
 // ValidDay validates a day
