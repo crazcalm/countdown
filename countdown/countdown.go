@@ -1,13 +1,10 @@
 package countdown
 
 import (
-	"flag"
 	"fmt"
-	"log"
 	"math"
 	"os"
 	"os/exec"
-	"strings"
 	"time"
 )
 
@@ -106,6 +103,7 @@ func FirstAndLastDayOfTheMonth(year, month int, location *time.Location) (first,
 	return
 }
 
+/*
 var year = flag.Int("year", 0, "Year")
 var month = flag.Int("month", 0, "Month")
 var day = flag.Int("day", 0, "Day")
@@ -154,3 +152,4 @@ func main() {
 		time.Sleep(time.Duration(*refreshSeconds) * time.Second)
 	}
 }
+*/
