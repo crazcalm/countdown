@@ -32,30 +32,34 @@ func ValidYear(currentYear, futureYear int) bool {
 	return currentYear <= futureYear
 }
 
+// ValidateRange is used internally to check the range of items
+func ValidateRange(lowerBound, upperBound, item int) bool {
+	return lowerBound <= item && item <= upperBound
+}
+
 // ValidMonth validates a month
 func ValidMonth(month int) bool {
-	return 1 <= month && month <= 12
+	return ValidateRange(1, 12, month)
 }
 
 // ValidDay validates a day
 func ValidDay(lowerBound, upperBound, day int) bool {
-	return lowerBound <= day && day <= upperBound
+	return ValidateRange(lowerBound, upperBound, day)
 }
 
 // ValidHours validates the hour used
 func ValidHours(hours int) bool {
-	return 0 <= hours && hours <= 23
+	return ValidateRange(0, 23, hours)
 }
 
 // ValidMinutes validates the minutes used
 func ValidMinutes(minutes int) bool {
-	return 0 <= minutes && minutes <= 59
+	return ValidateRange(0, 59, minutes)
 }
 
 // ValidDate validates ensures that the used date is in the future
-func ValidDate(futureDate time.Time) (err error) {
-	now := time.Now()
-	if !now.Before(futureDate) {
+func ValidDate(futureDate, currentDate time.Time) (err error) {
+	if !currentDate.Before(futureDate) {
 		err = fmt.Errorf("Please choose a date in the future")
 	}
 	return
@@ -102,54 +106,3 @@ func FirstAndLastDayOfTheMonth(year, month int, location *time.Location) (first,
 	last = date.AddDate(0, 1, -1).Day()
 	return
 }
-
-/*
-var year = flag.Int("year", 0, "Year")
-var month = flag.Int("month", 0, "Month")
-var day = flag.Int("day", 0, "Day")
-var hours = flag.Int("hours", 0, "Hours")
-var minutes = flag.Int("minutes", 0, "Minutes")
-
-var refreshSeconds = flag.Int("refresh", 1, "Refresh time in seconds")
-var msg = flag.String("msg", "The magic day is almost here!", "The message that is displayed with the countdown")
-
-func main() {
-	flag.Parse()
-	loc, err := time.LoadLocation("Local")
-	if err != nil {
-		log.Fatal("Error with the location")
-	}
-
-	now := time.Now()
-	currentYear, _, _ := now.Date()
-	dayLowerBound, dayUpperBound := FirstAndLastDayOfTheMonth(*year, *month, loc)
-
-	err = ValidateInput(*year, *month, *day, *hours, *minutes, currentYear, dayLowerBound, dayUpperBound)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	future := time.Date(*year, time.Month(*month), *day, *hours, *minutes, 0, 0, loc)
-
-	err = ValidDate(future)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	var diff time.Duration
-
-	for {
-
-		Clear()
-		diff = time.Until(future)
-		if strings.Contains(diff.String(), "-") {
-			fmt.Printf("The countdown for '%s' is over!\n", *msg)
-			break
-		}
-		fmt.Printf("%d-%d-%d: %s\n\n", *year, *month, *day, *msg)
-
-		fmt.Printf("%.0fd %.0fh %.0fm %.0fs\n", Days(diff.Hours()), TimeModX(diff.Hours(), 24), TimeModX(diff.Minutes(), 60), TimeModX(diff.Seconds(), 60))
-		time.Sleep(time.Duration(*refreshSeconds) * time.Second)
-	}
-}
-*/

@@ -37,8 +37,9 @@ func main() {
 	}
 
 	future := time.Date(*year, time.Month(*month), *day, *hours, *minutes, 0, 0, loc)
+	current := time.Now()
 
-	err = countdown.ValidDate(future)
+	err = countdown.ValidDate(future, current)
 	if err != nil {
 		log.Fatalln(err)
 	}

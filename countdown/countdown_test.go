@@ -108,3 +108,49 @@ func TestValidDay(t *testing.T) {
 		}
 	}
 }
+
+func TestValidHours(t *testing.T){
+	cases := []struct{
+		Hours	int
+		Answer	bool
+	}{
+		{-1, false},
+		{0, true},
+		{1, true},
+		{5, true},
+		{22, true},
+		{23, true},
+		{24, false},
+	}
+
+	var result bool
+	for _, test :=range cases{
+		result = ValidHours(test.Hours)
+		if result != test.Answer {
+			t.Errorf("ValidHours(%d) = %v, but it should be %v", test.Hours, result, test.Answer)
+		}
+	}
+}
+
+func TestValidMinutes(t *testing.T){
+	cases := []struct{
+		Minutes 	int
+		Answer		bool
+	}{
+		{-1, false},
+		{0, true},
+		{1, true},
+		{30, true},
+		{58, true},
+		{59, true},
+		{60, false},
+	}
+
+	var result bool
+	for _, test := range cases {
+		result = ValidMinutes(test.Minutes)
+		if result != test.Answer {
+			t.Errorf("ValidMinutes(%d) = %v, but is should be %v", test.Minutes, result, test.Answer)
+		}
+	}
+}
