@@ -2,6 +2,7 @@ package countdown
 
 import (
 	"testing"
+	"time"
 )
 
 func TestDays(t *testing.T) {
@@ -151,6 +152,36 @@ func TestValidMinutes(t *testing.T){
 		result = ValidMinutes(test.Minutes)
 		if result != test.Answer {
 			t.Errorf("ValidMinutes(%d) = %v, but is should be %v", test.Minutes, result, test.Answer)
+		}
+	}
+}
+
+func TestValidDate(t *testing.T){
+	location, err := time.LoadLocation("Local")
+	if err != nil {
+		t.Errorf("Error in getting local location")
+	}
+	cases := []struct{
+		Future		time.Time
+		Current		time.Time
+		Error		bool
+	}{
+		{time.Date(2018, time.Month(1), 19, 0, 0, 0, 0, location), time.Date(2017, time.Month(1), 19, 0, 0, 0, 0, location), false},
+		{time.Date(2018, time.Month(1), 19, 0, 0, 0, 0, location), time.Date(2018, time.Month(1), 19, 0, 0, 0, 0, location), true},
+		{time.Date(2017, time.Month(1), 19, 0, 0, 0, 0, location), time.Date(2018, time.Month(1), 19, 0, 0, 0, 0, location), true},
+	}
+
+	for _, test := range cases {
+		err = ValidDate(test.Future, test.Current)
+	
+		if test.Error {
+			if err == nil {
+				t.Errorf("ValidDate(%v, %v) did not throw an error when it should have!", test.Future, test.Current)
+			}
+		}else {
+			if err != nil {
+				t.Errorf("ValidDate(%v, %v) did thow an error when it was not suppose to!", test.Future, test.Current)
+			}
 		}
 	}
 }
