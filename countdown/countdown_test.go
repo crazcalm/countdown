@@ -110,10 +110,10 @@ func TestValidDay(t *testing.T) {
 	}
 }
 
-func TestValidHours(t *testing.T){
-	cases := []struct{
-		Hours	int
-		Answer	bool
+func TestValidHours(t *testing.T) {
+	cases := []struct {
+		Hours  int
+		Answer bool
 	}{
 		{-1, false},
 		{0, true},
@@ -125,7 +125,7 @@ func TestValidHours(t *testing.T){
 	}
 
 	var result bool
-	for _, test :=range cases{
+	for _, test := range cases {
 		result = ValidHours(test.Hours)
 		if result != test.Answer {
 			t.Errorf("ValidHours(%d) = %v, but it should be %v", test.Hours, result, test.Answer)
@@ -133,10 +133,10 @@ func TestValidHours(t *testing.T){
 	}
 }
 
-func TestValidMinutes(t *testing.T){
-	cases := []struct{
-		Minutes 	int
-		Answer		bool
+func TestValidMinutes(t *testing.T) {
+	cases := []struct {
+		Minutes int
+		Answer  bool
 	}{
 		{-1, false},
 		{0, true},
@@ -156,15 +156,15 @@ func TestValidMinutes(t *testing.T){
 	}
 }
 
-func TestValidDate(t *testing.T){
+func TestValidDate(t *testing.T) {
 	location, err := time.LoadLocation("Local")
 	if err != nil {
 		t.Errorf("Error in getting local location")
 	}
-	cases := []struct{
-		Future		time.Time
-		Current		time.Time
-		Error		bool
+	cases := []struct {
+		Future  time.Time
+		Current time.Time
+		Error   bool
 	}{
 		{time.Date(2018, time.Month(1), 19, 0, 0, 0, 0, location), time.Date(2017, time.Month(1), 19, 0, 0, 0, 0, location), false},
 		{time.Date(2018, time.Month(1), 19, 0, 0, 0, 0, location), time.Date(2018, time.Month(1), 19, 0, 0, 0, 0, location), true},
@@ -173,15 +173,44 @@ func TestValidDate(t *testing.T){
 
 	for _, test := range cases {
 		err = ValidDate(test.Future, test.Current)
-	
+
 		if test.Error {
 			if err == nil {
 				t.Errorf("ValidDate(%v, %v) did not throw an error when it should have!", test.Future, test.Current)
 			}
-		}else {
+		} else {
 			if err != nil {
 				t.Errorf("ValidDate(%v, %v) did thow an error when it was not suppose to!", test.Future, test.Current)
 			}
 		}
 	}
+}
+
+func TestFirstAndLastDayOfTheMonth(t *testing.T) {
+	location, err := time.LoadLocation("Local")
+	if err != nil {
+		t.Errorf("Failed to get local location")
+	}
+
+	cases := []struct {
+		Year     int
+		Month    int
+		Location *time.Location
+		FirstDay int
+		LastDay  int
+	}{
+		{2018, 1, location, 1, 31},
+	}
+
+	var resultDayOne int
+	var resultDayTwo int
+
+	for _, test := range cases {
+		resultDayOne, resultDayTwo = FirstAndLastDayOfTheMonth(test.Year, test.Month, test.Location)
+
+		if resultDayOne != test.FirstDay || resultDayTwo != test.LastDay {
+			t.Errorf("FirstAndLastDayOfTheMonth(%d, %d, %v) = %d, %d but it should be %d %d", test.Year, test.Month, test.Location, resultDayOne, resultDayTwo, test.FirstDay, test.LastDay)
+		}
+	}
+
 }
