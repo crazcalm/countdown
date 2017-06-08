@@ -214,3 +214,38 @@ func TestFirstAndLastDayOfTheMonth(t *testing.T) {
 	}
 
 }
+
+func TestValidInput(t *testing.T) {
+	cases := []struct {
+		Year          int
+		Month         int
+		Day           int
+		Hours         int
+		Minutes       int
+		CurrentYear   int
+		LowerDayBound int
+		UpperDayBound int
+		Error         bool
+	}{
+		{0, 0, 0, 0, 0, 0, 0, 0, true},
+		{2016, 0, 0, 0, 0, 2017, 0, 0, true},
+		{2018, 13, 0, 0, 0, 2017, 0, 0, true},
+		{2018, 1, 33, 0, 0, 2017, 1, 30, true},
+		{2018, 1, 19, 25, 0, 2017, 1, 30, true},
+		{2018, 1, 19, 16, 65, 2017, 1, 30, true},
+		{2018, 1, 19, 0, 0, 2017, 1, 30, false},
+	}
+
+	var err error
+
+	for _, test := range cases {
+		err = ValidateInput(test.Year, test.Month, test.Day, test.Hours, test.Minutes, test.CurrentYear, test.LowerDayBound, test.UpperDayBound)
+
+		if err == nil && test.Error == true {
+			t.Errorf("ValidateInput(%d, %d, %d, %d, %d, %d, %d, %d) did not throw an error when it should have!", test.Year, test.Month, test.Day, test.Hours, test.Minutes, test.CurrentYear, test.LowerDayBound, test.UpperDayBound)
+		}
+		if err != nil && test.Error == false {
+			t.Errorf("ValidateInput(%d, %d, %d, %d, %d, %d, %d, %d) did throw and error when it should not have!", test.Year, test.Month, test.Day, test.Hours, test.Minutes, test.CurrentYear, test.LowerDayBound, test.UpperDayBound)
+		}
+	}
+}
